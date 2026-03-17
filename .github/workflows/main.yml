@@ -1,52 +1,31 @@
-name: Databricks CI/CD Pipeline
+name: Databricks Asset Bundle CI/CD
 
 on:
   push:
     branches:
       - main
-  pull_request:
 
 jobs:
-  ci:
-    name: Code Quality Checks
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
+      - name: Install Databricks CLI (new)
+        run: pip install databricks
 
-      - name: Install dependencies
-        run: |
-          pip install flake8 pytest
-
-      - name: Lint code
-        run: |
-          flake8 notebooks/ --max-line-length=120
-
-      - name: Run tests (optional)
-        run: |
-          pytest || echo "No tests found, skipping"
-
-  cd:
-    name: Deploy to Databricks
-    needs: ci   # 👈 runs ONLY if CI passes
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install Databricks CLI
-        run: pip install databricks-cli
-
-      - name: Deploy notebooks
+      - name: Deploy bundle
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: |
-          databricks workspace import_dir notebooks /Workspace/Users/databackupujj@gmail.com/project --overwrite
+          databricks bundle deploy
+
+      - name: Run job
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: |
+          databricks bundle run my-job
