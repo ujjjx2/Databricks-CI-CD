@@ -13,9 +13,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Databricks CLI (new)
-        run: pip install databricks
+      # ✅ Install NEW Databricks CLI properly
+      - name: Install Databricks CLI
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
 
+      # ✅ Verify CLI installation (optional but useful)
+      - name: Check CLI version
+        run: databricks --version
+
+      # ✅ Deploy bundle
       - name: Deploy bundle
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
@@ -23,6 +30,7 @@ jobs:
         run: |
           databricks bundle deploy
 
+      # ✅ Run job (optional)
       - name: Run job
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
