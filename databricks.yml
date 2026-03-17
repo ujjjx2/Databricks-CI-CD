@@ -1,0 +1,14 @@
+bundle:
+  name: databricks-ci-cd-project
+
+workspace:
+  host: ${DATABRICKS_HOST}
+
+resources:
+  jobs:
+    my-job:
+      name: my-first-job
+      tasks:
+        - task_key: task1
+          notebook_task:
+            notebook_path: ./notebooks/scd.py
