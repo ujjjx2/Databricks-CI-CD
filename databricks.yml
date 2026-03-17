@@ -1,9 +1,6 @@
 bundle:
   name: databricks-ci-cd-project
 
-workspace:
-  host: ${DATABRICKS_HOST}
-
 resources:
   jobs:
     my-job:
