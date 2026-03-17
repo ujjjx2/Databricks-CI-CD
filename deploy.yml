@@ -14,16 +14,12 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install Databricks CLI
-        run: |
-          pip install databricks-cli
-
-      - name: Configure Databricks CLI
-        run: |
-          databricks configure --token <<EOF
-          ${{ secrets.DATABRICKS_HOST }}
-          ${{ secrets.DATABRICKS_TOKEN }}
-          EOF
+        run: pip install databricks-cli
 
       - name: Deploy notebooks
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: |
+          databricks workspace ls /
           databricks workspace import_dir notebooks /Workspace/Users/databackupujj@gmail.com/project --overwrite
