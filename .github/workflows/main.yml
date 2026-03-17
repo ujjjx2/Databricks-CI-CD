@@ -49,5 +49,4 @@ jobs:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: |
-          databricks workspace delete /Workspace/Users/databackupujj@gmail.com/project --recursive
           databricks workspace import_dir notebooks /Workspace/Users/databackupujj@gmail.com/project --overwrite
