@@ -14,4 +14,4 @@ resources:
       tasks:
         - task_key: run-notebook
           notebook_task:
-            notebook_path: ./notebooks
+            notebook_path: ./notebooks/
