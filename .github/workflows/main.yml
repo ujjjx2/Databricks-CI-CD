@@ -1,4 +1,4 @@
-name: Databricks CI/CD Pipeline (DAB)
+name: Databricks CI/CD with Asset Bundles
 
 on:
   push:
@@ -21,16 +21,19 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
-        run: pip install flake8 pytest
+        run: |
+          pip install flake8 pytest
 
       - name: Lint code
-        run: flake8 notebooks/ --max-line-length=120
+        run: |
+          flake8 notebooks/ --max-line-length=120
 
       - name: Run tests
-        run: pytest || echo "No tests found"
+        run: |
+          pytest || echo "No tests found"
 
-  cd:
-    name: Deploy with Databricks Asset Bundles
+  deploy:
+    name: Deploy Databricks Bundle
     needs: ci
     runs-on: ubuntu-latest
 
@@ -38,22 +41,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # ✅ CORRECT: Install new CLI
-      - name: Install Databricks CLI (new)
+      # ✅ Install modern Databricks CLI
+      - name: Install Databricks CLI
         run: |
           curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
 
-      - name: Configure Databricks Auth
+      # ✅ Set authentication (NO login command)
+      - name: Set environment variables
         run: |
-          databricks auth login --host $DATABRICKS_HOST --token $DATABRICKS_TOKEN
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+          echo "DATABRICKS_HOST=${{ secrets.DATABRICKS_HOST }}" >> $GITHUB_ENV
+          echo "DATABRICKS_TOKEN=${{ secrets.DATABRICKS_TOKEN }}" >> $GITHUB_ENV
 
-      # ✅ Validate bundle
+      # ✅ Validate bundle config
       - name: Validate bundle
         run: databricks bundle validate
 
-      # ✅ Deploy bundle
+      # ✅ Deploy to Databricks
       - name: Deploy bundle
-        run: databricks bundle deploy --target prod
+        run: databricks bundle deploy --target dev
