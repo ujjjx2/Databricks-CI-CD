@@ -1,11 +1,17 @@
 bundle:
-  name: databricks-ci-cd-project
+  name: databricks-cicd
+
+targets:
+  dev:
+    default: true
+    workspace:
+      host: ${DATABRICKS_HOST}
 
 resources:
   jobs:
-    my-job:
-      name: my-first-job
+    notebook-job:
+      name: notebook-job
       tasks:
-        - task_key: task1
+        - task_key: run-notebook
           notebook_task:
-            notebook_path: ./notebooks/scd.py
+            notebook_path: ./notebooks
