@@ -1,4 +1,4 @@
-name: Databricks CI/CD Pipeline
+name: Databricks CI/CD Pipeline (DAB)
 
 on:
   push:
@@ -21,32 +21,39 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
-        run: |
-          pip install flake8 pytest
+        run: pip install flake8 pytest
 
       - name: Lint code
-        run: |
-          flake8 notebooks/ --max-line-length=120
+        run: flake8 notebooks/ --max-line-length=120
 
-      - name: Run tests (optional)
-        run: |
-          pytest || echo "No tests found, skipping"
+      - name: Run tests
+        run: pytest || echo "No tests found"
 
   cd:
-    name: Deploy to Databricks
-    needs: ci   # 👈 runs ONLY if CI passes
+    name: Deploy with Databricks Asset Bundles
+    needs: ci
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Databricks CLI
-        run: pip install databricks-cli
+      # ✅ CORRECT: Install new CLI
+      - name: Install Databricks CLI (new)
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
 
-      - name: Deploy notebooks
+      - name: Configure Databricks Auth
+        run: |
+          databricks auth login --host $DATABRICKS_HOST --token $DATABRICKS_TOKEN
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-        run: |
-          databricks workspace import_dir notebooks /Workspace/Users/databackupujj@gmail.com/project --overwrite
+
+      # ✅ Validate bundle
+      - name: Validate bundle
+        run: databricks bundle validate
+
+      # ✅ Deploy bundle
+      - name: Deploy bundle
+        run: databricks bundle deploy --target prod
